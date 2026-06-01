@@ -4,8 +4,8 @@ void main() {
   runApp(const MyApp());
 }
 
-/// Main app widget
-/// This sets theme and connects to the home page
+/// MAIN APP ENTRY POINT
+/// This widget starts the application and sets the theme
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -14,18 +14,21 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
 
-      // App name shown in device/app switcher
+      // This is the name of the application
+      // It appears in the task switcher on mobile
       title: 'Appointment Scheduler',
 
-      // Simple modern theme (Material 3)
+      // Theme configuration (Material 3 for modern UI look)
       theme: ThemeData(colorSchemeSeed: Colors.blue, useMaterial3: true),
 
+      // First screen shown when app opens
       home: const HomePage(),
     );
   }
 }
 
-/// Home screen where user selects date and time
+/// HOME PAGE (STATEFUL WIDGET)
+/// We use StatefulWidget because the UI changes when user selects date/time
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -33,12 +36,17 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+/// STATE CLASS
+/// This holds all dynamic data (date, time, etc.)
 class _HomePageState extends State<HomePage> {
-  // These variables store user selections
+  // Stores selected date from calendar
   DateTime? selectedDate;
+
+  // Stores selected time from clock picker
   TimeOfDay? selectedTime;
 
-  /// Opens calendar picker
+  /// FUNCTION: OPEN DATE PICKER
+  /// This shows a calendar dialog for user to choose a date
   Future<void> pickDate() async {
     DateTime? date = await showDatePicker(
       context: context,
@@ -46,14 +54,14 @@ class _HomePageState extends State<HomePage> {
       // Default date shown when calendar opens
       initialDate: DateTime.now(),
 
-      // Prevent selecting very old dates
+      // User cannot select dates before 2024
       firstDate: DateTime(2024),
 
-      // Allow selection up to year 2100
+      // User can select up to year 2100
       lastDate: DateTime(2100),
     );
 
-    // Save selected date and refresh UI
+    // If user selects a date, update UI
     if (date != null) {
       setState(() {
         selectedDate = date;
@@ -61,12 +69,13 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// Opens clock picker
+  /// FUNCTION: OPEN TIME PICKER
+  /// This shows a clock dialog for selecting time
   Future<void> pickTime() async {
     TimeOfDay? time = await showTimePicker(
       context: context,
 
-      // Default time shown
+      // Default time shown when clock opens
       initialTime: TimeOfDay.now(),
     );
 
@@ -78,25 +87,30 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  /// Convert date to readable text
+  /// FUNCTION: FORMAT SELECTED DATE
+  /// Converts DateTime into readable text for UI
   String getDateText() {
     if (selectedDate == null) {
       return "No date selected yet";
     }
+
     return "${selectedDate!.day}/${selectedDate!.month}/${selectedDate!.year}";
   }
 
-  /// Convert time to readable text
+  /// FUNCTION: FORMAT SELECTED TIME
+  /// Converts TimeOfDay into readable format
   String getTimeText() {
     if (selectedTime == null) {
       return "No time selected yet";
     }
+
     return selectedTime!.format(context);
   }
 
-  /// Booking validation + confirmation logic
+  /// FUNCTION: BOOK APPOINTMENT (VALIDATION + CONFIRMATION)
+  /// This checks if user selected valid data before booking
   void bookAppointment() {
-    // Check if user selected a date
+    // Step 1: Check if date is selected
     if (selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -107,7 +121,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    // Check if user selected a time
+    // Step 2: Check if time is selected
     if (selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -118,7 +132,7 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    // Combine date + time into one DateTime object
+    // Step 3: Combine date and time into one object
     final selectedDateTime = DateTime(
       selectedDate!.year,
       selectedDate!.month,
@@ -127,7 +141,7 @@ class _HomePageState extends State<HomePage> {
       selectedTime!.minute,
     );
 
-    // Prevent booking past date/time
+    // Step 4: Prevent booking past time
     if (selectedDateTime.isBefore(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -138,10 +152,10 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
-    // Success message (booking confirmed)
+    // Step 5: Success message
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text("Appointment booked successfully!"),
+        content: Text("Appointment booked successfully 🎉"),
         backgroundColor: Colors.green,
       ),
     );
@@ -150,22 +164,35 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Appointment Scheduler")),
+      /// APP BAR (TOP SECTION)
+      appBar: AppBar(
+        title: const Text("Appointment Scheduler"),
+        centerTitle: true,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+      ),
 
+      /// MAIN BODY
       body: Padding(
-        // Adds spacing around the whole screen (clean UI)
+        // Adds spacing around entire UI
         padding: const EdgeInsets.all(20),
 
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            /// DATE SECTION
+            /// ================= DATE SECTION =================
             Card(
+              elevation: 3, // Gives shadow effect
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+
               child: Padding(
                 padding: const EdgeInsets.all(16),
 
                 child: Column(
                   children: [
+                    // Section title
                     const Text(
                       "Selected Date",
                       style: TextStyle(
@@ -174,22 +201,26 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
+                    // Display selected date
                     Text(getDateText(), style: const TextStyle(fontSize: 18)),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
-                    ElevatedButton(
+                    // Button to open date picker
+                    ElevatedButton.icon(
                       onPressed: pickDate,
 
-                      // Button styling (improves UI look)
+                      // Icon improves user understanding
+                      icon: const Icon(Icons.calendar_today),
+                      label: const Text("Pick Date"),
+
+                      // Button styling
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         foregroundColor: Colors.white,
                       ),
-
-                      child: const Text("Select Date"),
                     ),
                   ],
                 ),
@@ -198,8 +229,13 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 20),
 
-            /// TIME SECTION
+            /// ================= TIME SECTION =================
             Card(
+              elevation: 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+
               child: Padding(
                 padding: const EdgeInsets.all(16),
 
@@ -213,21 +249,22 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
+                    // Display selected time
                     Text(getTimeText(), style: const TextStyle(fontSize: 18)),
 
-                    const SizedBox(height: 10),
+                    const SizedBox(height: 12),
 
-                    ElevatedButton(
+                    // Button to open time picker
+                    ElevatedButton.icon(
                       onPressed: pickTime,
-
+                      icon: const Icon(Icons.access_time),
+                      label: const Text("Select Time"),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.green,
                         foregroundColor: Colors.white,
                       ),
-
-                      child: const Text("Select Time"),
                     ),
                   ],
                 ),
@@ -236,19 +273,20 @@ class _HomePageState extends State<HomePage> {
 
             const SizedBox(height: 25),
 
-            /// BOOKING BUTTON (REAL WORLD ACTION)
-            ElevatedButton(
+            /// ================= BOOK BUTTON =================
+            ElevatedButton.icon(
               onPressed: bookAppointment,
+
+              icon: const Icon(Icons.check_circle),
+              label: const Text(
+                "Book Appointment",
+                style: TextStyle(fontSize: 16),
+              ),
 
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.black,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.all(15),
-              ),
-
-              child: const Text(
-                "Book Appointment",
-                style: TextStyle(fontSize: 16),
               ),
             ),
           ],
