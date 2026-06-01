@@ -107,32 +107,37 @@ class _HomePageState extends State<HomePage> {
     return selectedTime!.format(context);
   }
 
-  /// FUNCTION: BOOK APPOINTMENT (VALIDATION + CONFIRMATION)
-  /// This checks if user selected valid data before booking
+  /// FUNCTION: BOOK APPOINTMENT
+  /// This function checks user input before confirming booking
+  /// It prevents empty or invalid bookings
+
   void bookAppointment() {
-    // Step 1: Check if date is selected
+    // Step 1: Check if user selected a date
+    // If not selected, show error message and stop function
     if (selectedDate == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please select a date first"),
+          content: Text("Please choose a date before booking"),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Step 2: Check if time is selected
+    // Step 2: Check if user selected a time
+    // Time is required for a valid appointment
     if (selectedTime == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text("Please select a time first"),
+          content: Text("Please choose a time before booking"),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Step 3: Combine date and time into one object
+    // Step 3: Combine date and time into one DateTime object
+    // This helps us check if the booking is valid
     final selectedDateTime = DateTime(
       selectedDate!.year,
       selectedDate!.month,
@@ -141,7 +146,8 @@ class _HomePageState extends State<HomePage> {
       selectedTime!.minute,
     );
 
-    // Step 4: Prevent booking past time
+    // Step 4: Prevent booking past appointments
+    // Real apps should not allow past date/time bookings
     if (selectedDateTime.isBefore(DateTime.now())) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -153,6 +159,7 @@ class _HomePageState extends State<HomePage> {
     }
 
     // Step 5: Success message
+    // If everything is correct, confirm booking
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text("Appointment booked successfully 🎉"),
